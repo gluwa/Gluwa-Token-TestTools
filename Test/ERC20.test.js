@@ -5,9 +5,10 @@ const { ethers } = require('hardhat');
 chai.use(require('chai-bignumber')());
 use(solidity);
 
-const errorMsgs = require('./errorMsgs.js');
-const ercFunctions = require('./ercFunctions.js');
-const signatureHelper = require('./signature.js');
+const testHelper = require('./shared/shared');
+const errorMsgs = require('./shared/errorMsgs.js');
+const ercFunctions = require('./shared/ercFunctions.js');
+const signatureHelper = require('./shared/signature.js');
 
 const TOKEN_NAME = 'Test Token';
 const TOKEN_SYMBOL = 'TEST';
@@ -24,29 +25,12 @@ var TestToken;
 var chaiId;
 const totalAddressCreated = 14;
 
-// describe('Test for ERC20 Functions', ERC20Test(TOKEN_NAME, TOKEN_SYMBOL, STANDARD_MINT_AMOUNT, FAUCET_MINT));
+// describe('Test for ERC20 Functions', ERC20Test("TestERC20",TOKEN_NAME, TOKEN_SYMBOL, STANDARD_MINT_AMOUNT, FAUCET_MINT));
 
-async function createWallets(numberOfWallet, etherFaucetAddress) {
-    let wallets = [];
-    for (var i = 0; i < numberOfWallet; i++) {
-        var temp = await ethers.Wallet.createRandom();
-        await etherFaucetAddress.sendTransaction({
-            to: temp.address,
-            value: ethers.utils.parseEther("10")
-        });
-        wallets[i] = temp;
-    }
-    return wallets;
-}
-function compareBigNumber(expectedGreater, expectedLower) {
-    if (expectedGreater <= expectedLower) {
-        expect.fail("AssertionError: expected " + expectedGreater + " to be greater than " + expectedLower);
-    }
-}
 async function ERC20Test(contractName, tokenName, tokenSymbol, mintAmount, faucetMint) {
     before(async function () {
         [owner, faucet1, faucet2] = await ethers.getSigners();
-        users = await createWallets(totalAddressCreated, faucet1);
+        users = await testHelper.createWallets(totalAddressCreated, faucet1);
         this.contractFactory = await ethers.getContractFactory(contractName);
     });
 
@@ -131,7 +115,7 @@ async function ERC20Test(contractName, tokenName, tokenSymbol, mintAmount, fauce
         it('No balance can approve(), increaseAllowance() and decreaseAllowance()', async () => {
             const approveAmount = 1101;
             const increaseAmount = 7;
-            const newUsers = await createWallets(1, faucet2);
+            const newUsers = await testHelper.createWallets(1, faucet2);
             expect(await TestToken.balanceOf(newUsers[0].address)).to.equal(0);
 
             await ercFunctions.approveTest(TestToken, newUsers[0], users[2].address, approveAmount, true);
@@ -143,7 +127,7 @@ async function ERC20Test(contractName, tokenName, tokenSymbol, mintAmount, fauce
 
     describe('ERC20 - transfer and transferFrom', async function () {
         it('Test basic ERC20 transfer() - recipient has balance > 0', async () => {
-            compareBigNumber(await TestToken.balanceOf(users[8].address),0);
+            testHelper.compareBigNumber(await TestToken.balanceOf(users[8].address),0);
             await ercFunctions.transferTest(TestToken, users[7], users[8].address, 10, true);
         });
 
@@ -156,7 +140,7 @@ async function ERC20Test(contractName, tokenName, tokenSymbol, mintAmount, fauce
         });
 
         it('Test basic ERC20 transfer() - recipient has balance = 0', async () => {
-            const newUsers = await createWallets(1, faucet2);
+            const newUsers = await testHelper.createWallets(1, faucet2);
             expect(await TestToken.balanceOf(newUsers[0].address)).to.equal(0);
             await ercFunctions.transferTest(TestToken, users[7], newUsers[0].address, 10, true);
         });
@@ -167,14 +151,14 @@ async function ERC20Test(contractName, tokenName, tokenSymbol, mintAmount, fauce
         });
 
         it('Test basic ERC20 transferFrom() - recipient has balance > 0', async () => {
-            compareBigNumber(await TestToken.balanceOf(users[8].address), 0);
+            testHelper.compareBigNumber(await TestToken.balanceOf(users[8].address), 0);
             const transferAmount = 19;
             await ercFunctions.approveTest(TestToken, users[7], users[6].address, transferAmount, true);
             await ercFunctions.transferFromTest(TestToken, users[7], users[6], users[8].address, transferAmount, true);
         });
 
         it('Test basic ERC20 transferFrom() - recipient has balance > 0 without approve', async () => {
-            compareBigNumber(await TestToken.balanceOf(users[8].address), 0);
+            testHelper.compareBigNumber(await TestToken.balanceOf(users[8].address), 0);
             const transferAmount = 19;
             await ercFunctions.transferFromTest(TestToken, users[7], users[6], users[8].address, transferAmount, false, errorMsgs.INSUFFICIENT_ALLOWANCE);
         });
@@ -212,5 +196,4 @@ async function ERC20Test(contractName, tokenName, tokenSymbol, mintAmount, fauce
         });
     });
 }
-
 module.exports = { ERC20Test };

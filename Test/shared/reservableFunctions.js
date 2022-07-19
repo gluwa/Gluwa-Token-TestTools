@@ -12,7 +12,7 @@ async function reserveTest(TokenContract, submitter, ownerAddress, recipientAddr
         ownerAddress, recipientAddress, executorAddress, amount, fee, nonce, expiryBlockNum, signature
     );
 
-    await testHelper.checkTxnResult(txnInput, submitter, ethers, ethers.provider, errMsg);
+    await testHelper.checkTxnResult(txnInput, submitter, errMsg);
     if (doValidation) {
         expect(await TokenContract.reservedBalanceOf(ownerAddress)).to.equal(originalReservedAmount + (fee + amount));
         expect(await TokenContract.unreservedBalanceOf(ownerAddress)).to.equal(originalUnreservedAmount - (fee + amount));
@@ -39,7 +39,7 @@ async function executeTest(TokenContract, submitter, executor, ownerAddress, non
         ownerAddress, nonce
     );
 
-    await testHelper.checkTxnResult(txnInput, submitter, ethers, ethers.provider, errMsg);
+    await testHelper.checkTxnResult(txnInput, submitter, errMsg);
     if (doValidation) {
         const fee = reserve0.fee.toBigInt();
         const amount = reserve0.amount.toBigInt();
@@ -69,7 +69,7 @@ async function reclaimTest(TokenContract, submitter, executor, ownerAddress, non
         ownerAddress, nonce
     );
 
-    await testHelper.checkTxnResult(txnInput, submitter, ethers, ethers.provider, errMsg);
+    await testHelper.checkTxnResult(txnInput, submitter, errMsg);
     if (doValidation) {
         const fee = reserve0.fee.toBigInt();
         const amount = reserve0.amount.toBigInt();

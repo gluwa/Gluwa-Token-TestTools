@@ -12,7 +12,7 @@ async function approveTest(ERC20TokenContract, account, spenderAddress, amountTo
         spenderAddress,
         amountToApprove
     );
-    await testHelper.checkTxnResult(inputApprove, account, ethers, ethers.provider, errMsg);
+    await testHelper.checkTxnResult(inputApprove, account, errMsg);
     if (doValidation) {
         expect(await ERC20TokenContract.allowance(account.address, spenderAddress)).to.equal(
             amountToApprove
@@ -25,7 +25,7 @@ async function increaseAllowanceTest(ERC20TokenContract, account, spenderAddress
         spenderAddress,
         amountToIncrease
     );
-    await testHelper.checkTxnResult(inputIncreaseAllowance, account, ethers, ethers.provider, errMsg);
+    await testHelper.checkTxnResult(inputIncreaseAllowance, account, errMsg);
     if (doValidation) {
         expect(await ERC20TokenContract.allowance(account.address, spenderAddress)).to.equal(
             originalAmount + amountToIncrease
@@ -38,7 +38,7 @@ async function decreaseAllowanceTest(ERC20TokenContract, account, spenderAddress
         spenderAddress,
         amountToDecrease
     );
-    await testHelper.checkTxnResult(inputDecreaseAllowance, account, ethers, ethers.provider, errMsg);
+    await testHelper.checkTxnResult(inputDecreaseAllowance, account, errMsg);
     if (doValidation) {
         expect(await ERC20TokenContract.allowance(account.address, spenderAddress)).to.equal(originalAmount - amountToDecrease);
     }
@@ -51,7 +51,7 @@ async function transferTest(ERC20TokenContract, account, spenderAddress, amountT
         spenderAddress,
         amountToTransfer
     );
-    await testHelper.checkTxnResult(inputTransfer, account, ethers, ethers.provider, errMsg);
+    await testHelper.checkTxnResult(inputTransfer, account, errMsg);
 
     if (doValidation) {
         expect(await ERC20TokenContract.balanceOf(account.address)).to.equal(
@@ -73,7 +73,7 @@ async function transferFromTest(ERC20TokenContract, account, submitter, recipien
         recipientAddress,
         amountToTransfer
     );
-    await testHelper.checkTxnResult(inputTransfer, submitter, ethers, ethers.provider, errMsg);
+    await testHelper.checkTxnResult(inputTransfer, submitter, errMsg);
 
     if (doValidation) {
         expect(await ERC20TokenContract.balanceOf(submitter.address)).to.equal(
@@ -125,7 +125,7 @@ async function burnTest(ERC20TokenContract, account, amount, doValidation, errMs
     const originalBalanceSender = await ERC20TokenContract.balanceOf(account.address);
     const txnInput = await ERC20TokenContract.connect(account).populateTransaction["burn(uint256)"](amount);
 
-    await testHelper.checkTxnResult(txnInput, account, ethers, ethers.provider, errMsg);
+    await testHelper.checkTxnResult(txnInput, account, errMsg);
 
     if (doValidation) {
         expect(await ERC20TokenContract.balanceOf(account.address)).to.equal(
@@ -145,7 +145,7 @@ async function permitTest(ERC20TokenContract, submitter, accountAddress, spender
         s
     );
 
-    await testHelper.checkTxnResult(txnInput, submitter, ethers, ethers.provider, errMsg);
+    await testHelper.checkTxnResult(txnInput, submitter, errMsg);
     if (doValidation) {
         expect(await ERC20TokenContract.allowance(accountAddress, spenderAddress)).to.equal(
             amountToPermit

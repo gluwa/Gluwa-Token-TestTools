@@ -26,8 +26,8 @@ function compareBigNumber(expectedGreater, expectedLower) {
         expect.fail("AssertionError: expected " + expectedGreater + " to be greater than " + expectedLower);
     }
 }
-async function submitRawTxn(input, sender, ethers, provider) {
-    const txCount = await provider.getTransactionCount(sender.address);
+async function submitRawTxn(input, sender) {
+    const txCount = await ethers.provider.getTransactionCount(sender.address);
     var rawTx = {
         nonce: ethers.utils.hexlify(txCount),
         to: input.to,
@@ -37,26 +37,26 @@ async function submitRawTxn(input, sender, ethers, provider) {
         data: input.data
     };
     const rawTransactionHex = await sender.signTransaction(rawTx);
-    const { hash } = await provider.sendTransaction(rawTransactionHex);
-    await provider.waitForTransaction(hash);
-    return await provider.getTransactionReceipt(hash);
+    const { hash } = await ethers.provider.sendTransaction(rawTransactionHex);
+    await ethers.provider.waitForTransaction(hash);
+    return await ethers.provider.getTransactionReceipt(hash);
 }
 
-async function checkTxnResult(input, sender, ethers, provider, errMsg) {
+async function checkTxnResult(input, sender, errMsg) {
     let result;
     if (network.name === 'hardhat') {
         if (errMsg) {
-            await expect(submitRawTxn(input, sender, ethers, provider)).to.be.revertedWith(errMsg);
+            await expect(submitRawTxn(input, sender)).to.be.revertedWith(errMsg);
         } else {
-            result = await submitRawTxn(input, sender, ethers, provider);
+            result = await submitRawTxn(input, sender);
             expect(result.status).to.equal(1);
         }
     } else {
         if (errMsg) {
-            result = await submitRawTxn(input, sender, ethers, provider);
+            result = await submitRawTxn(input, sender);
             expect(result.status).to.equal(0);
         } else {
-            result = await submitRawTxn(input, sender, ethers, provider);
+            result = await submitRawTxn(input, sender);
             expect(result.status).to.equal(1);
         }
     }

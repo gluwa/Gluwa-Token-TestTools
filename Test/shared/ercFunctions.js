@@ -1,9 +1,9 @@
 const { expect } = require('chai');
 const { ethers } = require('hardhat');
 const signatureHelper = require('./signature.js');
-
-async function mintAndApprove(ERC20TokenContract, account, spenderAddress, amountToApprove, wrappingRate) {    
-    await ERC20TokenContract["faucetMint(address,uint256)"](account.address, amountToApprove * wrappingRate);
+const testHelper = require('./shared');
+async function mintAndApprove(faucetMint,ERC20TokenContract, account, spenderAddress, amountToApprove, wrappingRate) {    
+    await ERC20TokenContract[faucetMint](account.address, amountToApprove * wrappingRate);
     await approveTest(ERC20TokenContract, account, spenderAddress, amountToApprove, false);
 }
 
@@ -12,7 +12,7 @@ async function approveTest(ERC20TokenContract, account, spenderAddress, amountTo
         spenderAddress,
         amountToApprove
     );
-    await checkTxnResult(inputApprove, account, ethers, ethers.provider, errMsg);
+    await testHelper.checkTxnResult(inputApprove, account, errMsg);
     if (doValidation) {
         expect(await ERC20TokenContract.allowance(account.address, spenderAddress)).to.equal(
             amountToApprove
@@ -25,7 +25,7 @@ async function increaseAllowanceTest(ERC20TokenContract, account, spenderAddress
         spenderAddress,
         amountToIncrease
     );
-    await checkTxnResult(inputIncreaseAllowance, account, ethers, ethers.provider, errMsg);
+    await testHelper.checkTxnResult(inputIncreaseAllowance, account, errMsg);
     if (doValidation) {
         expect(await ERC20TokenContract.allowance(account.address, spenderAddress)).to.equal(
             originalAmount + amountToIncrease
@@ -38,7 +38,7 @@ async function decreaseAllowanceTest(ERC20TokenContract, account, spenderAddress
         spenderAddress,
         amountToDecrease
     );
-    await checkTxnResult(inputDecreaseAllowance, account, ethers, ethers.provider, errMsg);
+    await testHelper.checkTxnResult(inputDecreaseAllowance, account, errMsg);
     if (doValidation) {
         expect(await ERC20TokenContract.allowance(account.address, spenderAddress)).to.equal(originalAmount - amountToDecrease);
     }
@@ -51,7 +51,7 @@ async function transferTest(ERC20TokenContract, account, spenderAddress, amountT
         spenderAddress,
         amountToTransfer
     );
-    await checkTxnResult(inputTransfer, account, ethers, ethers.provider, errMsg);
+    await testHelper.checkTxnResult(inputTransfer, account, errMsg);
 
     if (doValidation) {
         expect(await ERC20TokenContract.balanceOf(account.address)).to.equal(
@@ -73,7 +73,7 @@ async function transferFromTest(ERC20TokenContract, account, submitter, recipien
         recipientAddress,
         amountToTransfer
     );
-    await checkTxnResult(inputTransfer, submitter, ethers, ethers.provider, errMsg);
+    await testHelper.checkTxnResult(inputTransfer, submitter, errMsg);
 
     if (doValidation) {
         expect(await ERC20TokenContract.balanceOf(submitter.address)).to.equal(
@@ -106,7 +106,7 @@ async function transferBySigTest(ERC20TokenContract, chainId, account, submitter
     const inputTransfer = await ERC20TokenContract.connect(submitter).populateTransaction[
         "transfer(address,address,uint256,uint256,uint256,bytes)"
     ](account.address, spenderAddress, amountToTransfer, feeToPay, nonce, signature);
-    await checkTxnResult(inputTransfer, submitter, ethers, ethers.provider, errMsg);
+    await testHelper.checkTxnResult(inputTransfer, submitter, ethers, ethers.provider, errMsg);
 
     if (doValidation) {
         expect(await ERC20TokenContract.balanceOf(submitter.address)).to.equal(
@@ -125,7 +125,7 @@ async function burnTest(ERC20TokenContract, account, amount, doValidation, errMs
     const originalBalanceSender = await ERC20TokenContract.balanceOf(account.address);
     const txnInput = await ERC20TokenContract.connect(account).populateTransaction["burn(uint256)"](amount);
 
-    await checkTxnResult(txnInput, account, ethers, ethers.provider, errMsg);
+    await testHelper.checkTxnResult(txnInput, account, errMsg);
 
     if (doValidation) {
         expect(await ERC20TokenContract.balanceOf(account.address)).to.equal(
@@ -145,48 +145,12 @@ async function permitTest(ERC20TokenContract, submitter, accountAddress, spender
         s
     );
 
-    await checkTxnResult(txnInput, submitter, ethers, ethers.provider, errMsg);
+    await testHelper.checkTxnResult(txnInput, submitter, errMsg);
     if (doValidation) {
         expect(await ERC20TokenContract.allowance(accountAddress, spenderAddress)).to.equal(
             amountToPermit
         );
     }
-}
-async function checkTxnResult(input, sender, ethers, provider, errMsg) {
-    let result;
-    if (network.name === 'hardhat') {
-        if (errMsg) {
-            await expect(submitRawTxn(input, sender, ethers, provider)).to.be.revertedWith(errMsg);
-        } else {
-            result = await submitRawTxn(input, sender, ethers, provider);
-            expect(result.status).to.equal(1);
-        }
-    } else {
-        if (errMsg) {
-            result = await submitRawTxn(input, sender, ethers, provider);
-            expect(result.status).to.equal(0);
-        } else {
-            result = await submitRawTxn(input, sender, ethers, provider);
-            expect(result.status).to.equal(1);
-        }
-    }
-    return result;
-};
-
-async function submitRawTxn(input, sender, ethers, provider) {
-    const txCount = await provider.getTransactionCount(sender.address);
-    var rawTx = {
-        nonce: ethers.utils.hexlify(txCount),
-        to: input.to,
-        value: 0x00,
-        gasLimit: ethers.utils.hexlify(1950000),
-        gasPrice: ethers.utils.hexlify(5000),
-        data: input.data
-    };
-    const rawTransactionHex = await sender.signTransaction(rawTx);
-    const { hash } = await provider.sendTransaction(rawTransactionHex);
-    await provider.waitForTransaction(hash);
-    return await provider.getTransactionReceipt(hash);
 }
 module.exports = {
     mintAndApprove,

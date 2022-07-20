@@ -62,4 +62,9 @@ async function checkTxnResult(input, sender, errMsg) {
     }
     return result;
 };
-module.exports = { createWallets, compareBigNumber, submitRawTxn, checkTxnResult, waitForNumberOfBlock}
+function generateRandomizedNumber(min,max){
+    return Math.floor(Math.random() * max) + min;
+}
+
+
+module.exports = { createWallets, compareBigNumber, submitRawTxn, checkTxnResult, waitForNumberOfBlock, generateRandomizedNumber}

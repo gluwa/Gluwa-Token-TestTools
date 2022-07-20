@@ -24,7 +24,7 @@ var owner;
 var faucet1;
 var faucet2;
 var TestToken; 
-const totalAddressCreated = Math.floor(Math.random() * 10) + 10;
+const totalAddressCreated = testHelper.generateRandomizedNumber(10, 20);
 
 // describe('Test for Reserveable Functions', ReserveableTest("Test", STANDARD_MINT_AMOUNT, FAUCET_MINT));
 
@@ -45,16 +45,16 @@ async function ReserveableTest(contractName, mintAmount, faucetMint) {
 
     describe('ERC20Reserve - Reserve function', async function () {
         it('Basic reserve test', async function () {
-            const expiryBlockNum = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 1000) + 1;
-            const FEE = BigInt(19);
+            const expiryBlockNum = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 20));
             const NONCE = Date.now();
             await reservableFunctions.reserveWithSignatureGenerationTest(TestToken, users[2], users[1], users[7].address, users[5].address, mintAmount - FEE, FEE, NONCE, expiryBlockNum, true);
         });
 
         it('Can transfer if the amount is lesser than the unreserved amount', async function () {
-            const expiryBlockNum = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 1000) + 1;
-            const FEE = BigInt(Math.floor(Math.random() * 10) + 1);
-            const TRANSFER_AMOUNT = BigInt(3);
+            const expiryBlockNum = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10));
+            const TRANSFER_AMOUNT = BigInt(testHelper.generateRandomizedNumber(1, 5));
             const AMOUNT = (await TestToken.balanceOf(users[1].address)).toBigInt() - FEE - TRANSFER_AMOUNT;
             const NONCE = Date.now();
             await reservableFunctions.reserveWithSignatureGenerationTest(TestToken, users[2], users[1], users[7].address, users[5].address, AMOUNT, FEE, NONCE, expiryBlockNum, true);
@@ -62,8 +62,8 @@ async function ReserveableTest(contractName, mintAmount, faucetMint) {
         });
 
         it('Cannot transfer more than the unreserved amount', async function () {
-            const expiryBlockNum = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 1000) + 1;
-            const FEE = BigInt(Math.floor(Math.random() * 10) + 1);
+            const expiryBlockNum = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10));
             const AMOUNT = (await TestToken.balanceOf(users[1].address)).toBigInt() - FEE;
             const NONCE = Date.now();
             await reservableFunctions.reserveWithSignatureGenerationTest(TestToken, users[2], users[1], users[7].address, users[5].address, AMOUNT, FEE, NONCE, expiryBlockNum, true);
@@ -71,8 +71,8 @@ async function ReserveableTest(contractName, mintAmount, faucetMint) {
         });
 
         it('Cannot reserve more than the balance', async function () {
-            const expiryBlockNum = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 1000) + 1;
-            const FEE = BigInt(Math.floor(Math.random() * 10) + 1);
+            const expiryBlockNum = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10));
             // the amount to be reserved = amount + fee
             const AMOUNT = (await TestToken.balanceOf(users[1].address)).toBigInt();
             const NONCE = Date.now();
@@ -80,141 +80,141 @@ async function ReserveableTest(contractName, mintAmount, faucetMint) {
         });
 
         it('Reserve when recipient is the same as sender', async function () {
-            const expiryBlockNum = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 1000) + 1;
-            const FEE = BigInt(Math.floor(Math.random() * 10) + 1);
+            const expiryBlockNum = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10));
             const NONCE = Date.now();
             await reservableFunctions.reserveWithSignatureGenerationTest(TestToken, users[2], users[1], users[7].address, users[1].address, mintAmount - FEE, FEE, NONCE, expiryBlockNum, true);
         });
 
         it('Reserve when executor is the same as sender', async function () {
-            const expiryBlockNum = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 1000) + 1;
-            const FEE = BigInt(Math.floor(Math.random() * 10) + 1);
+            const expiryBlockNum = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10));
             const NONCE = Date.now();
             await reservableFunctions.reserveWithSignatureGenerationTest(TestToken, users[2], users[1], users[1].address, users[3].address, mintAmount - FEE, FEE, NONCE, expiryBlockNum, true);
         });
 
         it('Reserve when sender is submitter, executor and recipient', async function () {
-            const expiryBlockNum = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 1000) + 1;
-            const FEE = BigInt(Math.floor(Math.random() * 10) + 1);
+            const expiryBlockNum = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10));
             const NONCE = Date.now();
             await reservableFunctions.reserveWithSignatureGenerationTest(TestToken, users[1], users[1], users[1].address, users[1].address, mintAmount - FEE, FEE, NONCE, expiryBlockNum, true);
         });
 
         it('Cannot reserve with current blocknumber as expiryBlockNum', async function () {
             const expiryBlockNum = await ethers.provider.getBlockNumber();
-            const FEE = BigInt(Math.floor(Math.random() * 10) + 1);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10));
             const NONCE = Date.now();
             await reservableFunctions.reserveWithSignatureGenerationTest(TestToken, users[2], users[1], users[7].address, users[5].address, mintAmount - FEE, FEE, NONCE, expiryBlockNum, false, errorMsgs.RESERVABLE_INVALID_BLOCK_NUMBER);
         });
 
         it('Cannot reserve with outdated blocknumber as expiryBlockNum', async function () {
             const expiryBlockNum = await ethers.provider.getBlockNumber() - 1;
-            const FEE = BigInt(Math.floor(Math.random() * 10) + 1);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10));
             const NONCE = Date.now();
             await reservableFunctions.reserveWithSignatureGenerationTest(TestToken, users[3], users[5], users[7].address, users[9].address, mintAmount - FEE, FEE, NONCE, expiryBlockNum, false, errorMsgs.RESERVABLE_INVALID_BLOCK_NUMBER);
         });
 
         it('Reserve when fee is higher than AMOUNT', async function () {
-            const expiryBlockNum = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 1000) + 1;
-            const FEE = BigInt(Math.floor(Math.random() * 10) + 10);
-            const AMOUNT = BigInt(Math.floor(Math.random() * 10) + 1);
+            const expiryBlockNum = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(11, 20));
+            const AMOUNT = BigInt(testHelper.generateRandomizedNumber(1, 10));
             const NONCE = Date.now();
             await reservableFunctions.reserveWithSignatureGenerationTest(TestToken, users[2], users[1], users[7].address, users[5].address, AMOUNT, FEE, NONCE, expiryBlockNum, true);
         });
 
         it('Reserve when fee is 0', async function () {
-            const expiryBlockNum = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 1000) + 1;
+            const expiryBlockNum = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
             const FEE = BigInt(0);
-            const AMOUNT = BigInt(Math.floor(Math.random() * 10) + 1);
+            const AMOUNT = BigInt(testHelper.generateRandomizedNumber(1, 10));
             const NONCE = Date.now();
             await reservableFunctions.reserveWithSignatureGenerationTest(TestToken, users[2], users[1], users[7].address, users[5].address, AMOUNT, FEE, NONCE, expiryBlockNum, true);
         });
 
         it('Reserve when amount is 0', async function () {
-            const expiryBlockNum = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 1000) + 1;
-            const FEE = BigInt(Math.floor(Math.random() * 10) + 1);
+            const expiryBlockNum = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10));
             const AMOUNT = BigInt(0);
             const NONCE = Date.now();
             await reservableFunctions.reserveWithSignatureGenerationTest(TestToken, users[2], users[1], users[7].address, users[5].address, AMOUNT, FEE, NONCE, expiryBlockNum, true);
         });
 
         it('Cannot reserve when executor is address 0', async function () {
-            const expiryBlockNum = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 1000) + 1;
+            const expiryBlockNum = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
             const FEE = BigInt(1);
-            const AMOUNT = BigInt(Math.floor(Math.random() * 10) + 10);
+            const AMOUNT = BigInt(testHelper.generateRandomizedNumber(1, 10));
             const NONCE = Date.now();
             await reservableFunctions.reserveWithSignatureGenerationTest(TestToken, users[2], owner, users[7].address, ZERO_ADDRESS, AMOUNT, FEE, NONCE, expiryBlockNum, false, errorMsgs.RESERVABLE_EXCUTE_ADDRESS_0);
         });
 
         it('Can reserve when recipient is address 0', async function () {
-            const expiryBlockNum = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 1000) + 1;
+            const expiryBlockNum = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
             const FEE = BigInt(1);
-            const AMOUNT = BigInt(Math.floor(Math.random() * 10) + 1);
+            const AMOUNT = BigInt(testHelper.generateRandomizedNumber(10, 100));
             const NONCE = Date.now();
             await reservableFunctions.reserveWithSignatureGenerationTest(TestToken, users[2], users[1], ZERO_ADDRESS, users[7].address, AMOUNT, FEE, NONCE, expiryBlockNum, true);
         });
 
         it('A sender can make more than 1 reserve for different recipients', async function () {
-            const expiryBlockNum = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 1000) + 1;
-            const FEE = BigInt(Math.floor(Math.random() * 10) + 1);
-            const AMOUNT = BigInt(Math.floor(Math.random() * 100) + 1);
+            const expiryBlockNum = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10));
+            const AMOUNT = BigInt(testHelper.generateRandomizedNumber(10, 100));
             const NONCE = Date.now();
             await reservableFunctions.reserveWithSignatureGenerationTest(TestToken, users[2], users[1], users[3].address, users[7].address, AMOUNT, FEE, NONCE, expiryBlockNum, true);
-            const expiryBlockNum_1 = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 1000) + 1;
-            const FEE_1 = BigInt(Math.floor(Math.random() * 10) + 10);
-            const AMOUNT_1 = BigInt(Math.floor(Math.random() * 500) + 100);
+            const expiryBlockNum_1 = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE_1 = BigInt(testHelper.generateRandomizedNumber(10, 20));
+            const AMOUNT_1 = BigInt(testHelper.generateRandomizedNumber(1, 1000));
             const NONCE_1 = Date.now();
             await reservableFunctions.reserveWithSignatureGenerationTest(TestToken, users[2], users[1], users[3].address, users[7].address, AMOUNT_1, FEE_1, NONCE_1, expiryBlockNum_1, true);
         });
 
         it('A sender can make more than 1 reserve for a recipient', async function () {
-            const expiryBlockNum = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 1000) + 1;
-            const FEE = BigInt(Math.floor(Math.random() * 10) + 10);
-            const AMOUNT = BigInt(Math.floor(Math.random() * 100) + 100);
+            const expiryBlockNum = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10));
+            const AMOUNT = BigInt(testHelper.generateRandomizedNumber(10, 100));
             const NONCE = Date.now();
             await reservableFunctions.reserveWithSignatureGenerationTest(TestToken, users[2], users[1], users[3].address, users[7].address, AMOUNT, FEE, NONCE, expiryBlockNum, true);
-            const expiryBlockNum_1 = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 100) + 100;
-            const FEE_1 = BigInt(Math.floor(Math.random() * 10) + 1);
-            const AMOUNT_1 = BigInt(Math.floor(Math.random() * 1000) + 100);
+            const expiryBlockNum_1 = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE_1 = BigInt(testHelper.generateRandomizedNumber(1, 10));
+            const AMOUNT_1 = BigInt(testHelper.generateRandomizedNumber(10, 1000));
             const NONCE_1 = Date.now();
             await reservableFunctions.reserveWithSignatureGenerationTest(TestToken, users[2], users[1], users[3].address, users[7].address, AMOUNT_1, FEE_1, NONCE_1, expiryBlockNum_1, true);
         });
 
         it('Can resue blocknum', async function () {
-            const expiryBlockNum = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 1000) + 1;
-            const FEE = BigInt(Math.floor(Math.random() * 10) + 1);
-            const AMOUNT = BigInt(Math.floor(Math.random() * 100) + 100);
+            const expiryBlockNum = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10));
+            const AMOUNT = BigInt(testHelper.generateRandomizedNumber(10, 100));
             const NONCE = Date.now();
             await reservableFunctions.reserveWithSignatureGenerationTest(TestToken, users[2], users[1], users[3].address, users[7].address, AMOUNT, FEE, NONCE, expiryBlockNum, true);
             const expiryBlockNum_1 = expiryBlockNum;
-            const FEE_1 = BigInt(Math.floor(Math.random() * 10) + 10);
-            const AMOUNT_1 = BigInt(Math.floor(Math.random() * 1000) + 100);
+            const FEE_1 = BigInt(testHelper.generateRandomizedNumber(1, 10));
+            const AMOUNT_1 = BigInt(testHelper.generateRandomizedNumber(10, 1000));
             const NONCE_1 = Date.now();
             await reservableFunctions.reserveWithSignatureGenerationTest(TestToken, users[2], users[1], users[3].address, users[7].address, AMOUNT_1, FEE_1, NONCE_1, expiryBlockNum_1, true);
         });
 
         it('Cannot resue nonce', async function () {
-            const expiryBlockNum = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 1000) + 1;
-            const FEE = BigInt(Math.floor(Math.random() * 10) + 1);
-            const AMOUNT = BigInt(Math.floor(Math.random() * 100) + 100);
+            const expiryBlockNum = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10));
+            const AMOUNT = BigInt(testHelper.generateRandomizedNumber(10, 100));
             const NONCE = Date.now();
             await reservableFunctions.reserveWithSignatureGenerationTest(TestToken, users[2], users[1], users[3].address, users[7].address, AMOUNT, FEE, NONCE, expiryBlockNum, true);
-            const expiryBlockNum_1 = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 1000) + 1;
-            const FEE_1 = BigInt(Math.floor(Math.random() * 10) + 10);
-            const AMOUNT_1 = BigInt(Math.floor(Math.random() * 1000) + 100);
+            const expiryBlockNum_1 = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE_1 = BigInt(testHelper.generateRandomizedNumber(1, 10));
+            const AMOUNT_1 = BigInt(testHelper.generateRandomizedNumber(10, 100));
             await reservableFunctions.reserveWithSignatureGenerationTest(TestToken, users[2], users[1], users[3].address, users[7].address, AMOUNT_1, FEE_1, NONCE, expiryBlockNum_1, false, errorMsgs.RESERVABLE_NONCE_WAS_USED);
         });
 
         it('Invalid signature', async function () {
-            const expiryBlockNum = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 1000) + 1;
-            const FEE = BigInt(Math.floor(Math.random() * 10) + 1);
-            const AMOUNT = BigInt(Math.floor(Math.random() * 100) + 100);
+            const expiryBlockNum = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10));
+            const AMOUNT = BigInt(testHelper.generateRandomizedNumber(10, 100));
             const NONCE = Date.now();
             chainId = await TestToken.chainId();
             const signature = await signatureHelper.signReserve(chainId, TestToken.address, users[1], users[3].address, users[7].address, AMOUNT, FEE, NONCE, expiryBlockNum);
-            const expiryBlockNum_1 = await ethers.provider.getBlockNumber() + 239;
-            const FEE_1 = BigInt(Math.floor(Math.random() * 10) + 10);
-            const AMOUNT_1 = BigInt(Math.floor(Math.random() * 1000) + 100);
+            const expiryBlockNum_1 = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE_1 = BigInt(testHelper.generateRandomizedNumber(1, 10));
+            const AMOUNT_1 = BigInt(testHelper.generateRandomizedNumber(10, 100));
             // Various calls including different nonce, fee, amount, recipient, executor and expiration block to test invalid signature behavior
             await reservableFunctions.reserveTest(TestToken, users[2], users[1].address, users[3].address, users[7].address, AMOUNT, FEE, NONCE, expiryBlockNum_1, signature, false, errorMsgs.INVALID_SIGNATURE);
             await reservableFunctions.reserveTest(TestToken, users[2], users[1].address, users[3].address, users[7].address, AMOUNT, FEE_1, NONCE, expiryBlockNum, signature, false, errorMsgs.INVALID_SIGNATURE);
@@ -227,8 +227,8 @@ async function ReserveableTest(contractName, mintAmount, faucetMint) {
 
     describe('ERC20Reserve - Execute function', async function () {
         it('Basic execute test', async function () {
-            const expiryBlockNum = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 1000) + 1;
-            const FEE = BigInt(Math.floor(Math.random() * 100000) + 10000);
+            const expiryBlockNum = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10000));
             const NONCE = Date.now();
             const EXECUTOR = users[0];
             const OWNER = users[8];
@@ -239,8 +239,8 @@ async function ReserveableTest(contractName, mintAmount, faucetMint) {
         });
 
         it('Owner can execute', async function () {
-            const expiryBlockNum = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 1000) + 1;
-            const FEE = BigInt(Math.floor(Math.random() * 100000) + 10000);
+            const expiryBlockNum = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10000));
             const NONCE = Date.now();
             const EXECUTOR = users[0];
             const OWNER = users[8];
@@ -251,8 +251,8 @@ async function ReserveableTest(contractName, mintAmount, faucetMint) {
         });
 
         it('Non-owner nor executor cannot execute', async function () {
-            const expiryBlockNum = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 1000) + 1;
-            const FEE = BigInt(Math.floor(Math.random() * 100000) + 10000);
+            const expiryBlockNum = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10000));
             const NONCE = Date.now();
             const EXECUTOR = users[0];
             const OWNER = users[8];
@@ -263,8 +263,8 @@ async function ReserveableTest(contractName, mintAmount, faucetMint) {
         });
 
         it('Execute an invalid nonce', async function () {
-            const expiryBlockNum = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 1000) + 1;
-            const FEE = BigInt(Math.floor(Math.random() * 100) + 10);
+            const expiryBlockNum = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10000));
             const NONCE = Date.now();
             const EXECUTOR = users[0];
             const OWNER = users[8];
@@ -283,8 +283,8 @@ async function ReserveableTest(contractName, mintAmount, faucetMint) {
         });
 
         it('Execute multiple times', async function () {
-            const expiryBlockNum = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 10) + 10;
-            const FEE = BigInt(Math.floor(Math.random() * 100) + 10);
+            const expiryBlockNum = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10000));
             const NONCE = Date.now();
             const EXECUTOR = users[2];
             const OWNER = users[5];
@@ -298,7 +298,7 @@ async function ReserveableTest(contractName, mintAmount, faucetMint) {
         it('Execute after expiration', async function () {
             const BLOCK_PERIOD = 2;
             const expiryBlockNum = await ethers.provider.getBlockNumber() + BLOCK_PERIOD;
-            const FEE = BigInt(Math.floor(Math.random() * 100) + 10);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10000));
             const NONCE = Date.now();
             const EXECUTOR = users[3];
             const OWNER = users[6];
@@ -314,7 +314,7 @@ async function ReserveableTest(contractName, mintAmount, faucetMint) {
         it('Basic reclaim test', async function () {
             const BLOCK_PERIOD = 2;
             const expiryBlockNum = await ethers.provider.getBlockNumber() + BLOCK_PERIOD;
-            const FEE = BigInt(Math.floor(Math.random() * 100000) + 1000);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10000));
             const NONCE = Date.now();
             const EXECUTOR = users[0];
             const OWNER = users[8];
@@ -328,7 +328,7 @@ async function ReserveableTest(contractName, mintAmount, faucetMint) {
         it('Executor can reclaim for owner', async function () {
             const BLOCK_PERIOD = 2;
             const expiryBlockNum = await ethers.provider.getBlockNumber() + BLOCK_PERIOD;
-            const FEE = BigInt(Math.floor(Math.random() * 100000) + 1000);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10000));
             const NONCE = Date.now();
             const EXECUTOR = users[0];
             const OWNER = users[8];
@@ -340,8 +340,8 @@ async function ReserveableTest(contractName, mintAmount, faucetMint) {
         });
 
         it('Owner cannot reclaim before expiration', async function () {
-            const expiryBlockNum = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 10) + 10;
-            const FEE = BigInt(Math.floor(Math.random() * 100000) + 1000);
+            const expiryBlockNum = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10000));
             const NONCE = Date.now();
             const EXECUTOR = users[0];
             const OWNER = users[8];
@@ -352,8 +352,8 @@ async function ReserveableTest(contractName, mintAmount, faucetMint) {
         });
 
         it('Executor can reclaim before expiration', async function () {
-            const expiryBlockNum = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 10) + 10;
-            const FEE = BigInt(Math.floor(Math.random() * 100000) + 1000);
+            const expiryBlockNum = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10000));
             const NONCE = Date.now();
             const EXECUTOR = users[0];
             const OWNER = users[8];
@@ -364,8 +364,8 @@ async function ReserveableTest(contractName, mintAmount, faucetMint) {
         });
 
         it('Non-owner nor executor cannot reclaim before execution', async function () {
-            const expiryBlockNum = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 10) + 10;
-            const FEE = BigInt(Math.floor(Math.random() * 100000) + 1000);
+            const expiryBlockNum = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10000));
             const NONCE = Date.now();
             const EXECUTOR = users[0];
             const OWNER = users[8];
@@ -378,7 +378,7 @@ async function ReserveableTest(contractName, mintAmount, faucetMint) {
         it('Non-owner nor executor cannot reclaim after execution', async function () {
             const BLOCK_PERIOD = 2;
             const expiryBlockNum = await ethers.provider.getBlockNumber() + BLOCK_PERIOD;
-            const FEE = BigInt(Math.floor(Math.random() * 100000) + 1000);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10000));
             const NONCE = Date.now();
             const EXECUTOR = users[0];
             const OWNER = users[8];
@@ -390,8 +390,8 @@ async function ReserveableTest(contractName, mintAmount, faucetMint) {
         });
 
         it('Reclaim an invalid nonce', async function () {
-            const expiryBlockNum = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 10) + 10;
-            const FEE = BigInt(Math.floor(Math.random() * 100) + 10);
+            const expiryBlockNum = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10000));
             const NONCE = Date.now();
             const EXECUTOR = users[0];
             const OWNER = users[8];
@@ -410,8 +410,8 @@ async function ReserveableTest(contractName, mintAmount, faucetMint) {
         });
 
         it('Reclaim multiple times', async function () {
-            const expiryBlockNum = await ethers.provider.getBlockNumber() + Math.floor(Math.random() * 10) + 10;
-            const FEE = BigInt(Math.floor(Math.random() * 100) + 10);
+            const expiryBlockNum = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10000));
             const NONCE = Date.now();
             const EXECUTOR = users[2];
             const OWNER = users[5];
@@ -425,7 +425,7 @@ async function ReserveableTest(contractName, mintAmount, faucetMint) {
         it('Owner reclaim multiple times', async function () {
             const BLOCK_PERIOD = 2;
             const expiryBlockNum = await ethers.provider.getBlockNumber() + BLOCK_PERIOD;
-            const FEE = BigInt(Math.floor(Math.random() * 100) + 10);
+            const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10000));
             const NONCE = Date.now();
             const EXECUTOR = users[0];
             const OWNER = users[8];

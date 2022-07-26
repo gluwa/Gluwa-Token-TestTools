@@ -1,10 +1,10 @@
+
 module.exports = {
     signReserve: async function (chainId, contractAddress, sourceWallet, recipientAddress, executorAddress, amount, fee, nonce, expiryBlockNum) {
         var hash = ethers.utils.solidityKeccak256(
             ['uint8', 'uint256', 'address', 'address', 'address', 'address', 'uint256', 'uint256', 'uint256', 'uint256'],
             [4, chainId, contractAddress, sourceWallet.address, recipientAddress, executorAddress, amount, fee, nonce, expiryBlockNum]
         );
-
         return await sourceWallet.signMessage(ethers.utils.arrayify(hash));
     },
     signTransfer: async function (chainId, contractAddress, sourceWallet, recipientAddress, amount, fee, nonce) {

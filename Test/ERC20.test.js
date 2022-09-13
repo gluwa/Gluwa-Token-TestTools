@@ -27,7 +27,7 @@ const totalAddressCreated = testHelper.generateRandomizedNumber(10, 20)
 
 // describe('Test for ERC20 Functions', ERC20Test("TestERC20",TOKEN_NAME, TOKEN_SYMBOL, STANDARD_MINT_AMOUNT, FAUCET_MINT));
 
-async function ERC20Test(contractName, tokenName, tokenSymbol, mintAmount, faucetMint) {
+async function ERC20Test(contractName, tokenName, tokenSymbol, tokenDecimals, mintAmount, faucetMint, initialize, errorMsgs) {
     before(async function () {
         [owner, faucet1, faucet2] = await ethers.getSigners();
         users = await testHelper.createWallets(totalAddressCreated, faucet1);
@@ -36,6 +36,7 @@ async function ERC20Test(contractName, tokenName, tokenSymbol, mintAmount, fauce
 
     beforeEach(async function () {
         TestToken = await this.contractFactory.deploy();
+        if (initialize) await initialize(TestToken, owner);
         for (var i = 0; i < totalAddressCreated; i++) {
             await TestToken[faucetMint](users[i].address, mintAmount);
         }
@@ -52,7 +53,7 @@ async function ERC20Test(contractName, tokenName, tokenSymbol, mintAmount, fauce
         });
 
         it('Token decimals is correct', async function () {
-            expect(await TestToken.decimals()).to.equal(DECIMALS);
+            expect(await TestToken.decimals()).to.equal(tokenDecimals);
         });
 
         it('Total supply test', async function () {

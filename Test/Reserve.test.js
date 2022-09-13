@@ -28,7 +28,7 @@ const totalAddressCreated = testHelper.generateRandomizedNumber(10, 20);
 
 // describe('Test for Reserveable Functions', ReserveableTest("Test", STANDARD_MINT_AMOUNT, FAUCET_MINT));
 
-async function ReserveableTest(contractName, mintAmount, faucetMint) {
+async function ReserveableTest(contractName, mintAmount, faucetMint, initialize, errorMsgs, reservableFunctions) {
     before(async function () {
         [owner, faucet1, faucet2] = await ethers.getSigners();
         users = await testHelper.createWallets(totalAddressCreated, faucet1);
@@ -37,6 +37,7 @@ async function ReserveableTest(contractName, mintAmount, faucetMint) {
 
     beforeEach(async function () {
         TestToken = await this.contractFactory.deploy();
+        if (initialize) await initialize(TestToken, owner);
         for (var i = 0; i < totalAddressCreated; i++) {
             await TestToken[faucetMint](users[i].address, mintAmount);
         }

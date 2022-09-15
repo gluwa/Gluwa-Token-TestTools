@@ -211,8 +211,7 @@ async function ReserveableTest(contractName, mintAmount, faucetMint, initialize,
             const FEE = BigInt(testHelper.generateRandomizedNumber(1, 10));
             const AMOUNT = BigInt(testHelper.generateRandomizedNumber(10, 100));
             const NONCE = Date.now();
-            chainId = await TestToken.chainId();
-            const signature = await signatureHelper.signReserve(chainId, TestToken.address, users[1], users[3].address, users[7].address, AMOUNT, FEE, NONCE, expiryBlockNum);
+            const signature = await signatureHelper.signReserve(hre.network.config.chainId, TestToken.address, users[1], users[3].address, users[7].address, AMOUNT, FEE, NONCE, expiryBlockNum);
             const expiryBlockNum_1 = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
             const FEE_1 = BigInt(testHelper.generateRandomizedNumber(1, 10));
             const AMOUNT_1 = BigInt(testHelper.generateRandomizedNumber(10, 100));

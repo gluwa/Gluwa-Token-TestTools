@@ -213,8 +213,8 @@ async function ReserveableTest(contractName, mintAmount, faucetMint, initialize,
             const NONCE = Date.now();
             const signature = await signatureHelper.signReserve(hre.network.config.chainId, TestToken.address, users[1], users[3].address, users[7].address, AMOUNT, FEE, NONCE, expiryBlockNum);
             const expiryBlockNum_1 = await ethers.provider.getBlockNumber() + testHelper.generateRandomizedNumber(1, 1000);
-            const FEE_1 = BigInt(testHelper.generateRandomizedNumber(1, 10));
-            const AMOUNT_1 = BigInt(testHelper.generateRandomizedNumber(10, 100));
+            const FEE_1 = BigInt(testHelper.generateRandomizedNumber(11, 20));
+            const AMOUNT_1 = BigInt(testHelper.generateRandomizedNumber(101, 200));
             // Various calls including different nonce, fee, amount, recipient, executor and expiration block to test invalid signature behavior
             await reservableFunctions.reserveTest(TestToken, users[2], users[1].address, users[3].address, users[7].address, AMOUNT, FEE, NONCE, expiryBlockNum_1, signature, false, errorMsgs.INVALID_SIGNATURE);
             await reservableFunctions.reserveTest(TestToken, users[2], users[1].address, users[3].address, users[7].address, AMOUNT, FEE_1, NONCE, expiryBlockNum, signature, false, errorMsgs.INVALID_SIGNATURE);
